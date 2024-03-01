@@ -13,7 +13,8 @@ interface Props {
 
 function Weather({city}: Props) {
     const [cityState, setCityState] = useState(city);
-
+    const [hasError, setHasError] = useState(false)
+    const [isLoading, setIsLoading] = useState(true);
     const [weatherState, setWeatherState] = useState<weather>({
         city: "",
         wind: 0,
@@ -26,8 +27,14 @@ function Weather({city}: Props) {
     const [forecastState, setForecastState] = useState<ForecastResponse | null>(null);
 
     const getWeatherData = async () => {
+        setIsLoading(true);
+        setHasError(false);
         const response = await callWeatherApi({city: cityState});
-
+        setIsLoading(false);
+        if(response === false) {
+            setHasError(true)
+            return;
+        }
         const weather = {
             city: response.name,
             wind:response.wind.speed,
@@ -42,10 +49,6 @@ function Weather({city}: Props) {
         setForecastState(forecastResponse);
     }
 
-    // if(weatherState.city.length === 0) {
-    //     getWeatherData(city);
-    // }
-
     useEffect(() => {
         getWeatherData();
     }, [cityState])
@@ -53,10 +56,16 @@ function Weather({city}: Props) {
     return (
         <div className="flex flex-col items-center mt-[200px]">
             <Image src={"next.svg"} alt={"logo"} width={86} height={44}/>
-            <div className="bg-white shadow mt-4 rounded-2xl p-8 py-16">
+            <div className="bg-white shadow mt-4 rounded-2xl p-8 py-16 h-[500px] w-[750px]">
                 <SearchForm city={cityState} setCityState={setCityState} />
-                {weatherState.city && <WeatherInfo weather={weatherState}/>}
-                {forecastState && <ForecastList forecast={forecastState}/>}
+                {
+                    isLoading ? <p>is loading please wait</p> : 
+                    hasError ? <p>there is an error with api</p> :
+                    <>
+                        {weatherState.city && <WeatherInfo weather={weatherState}/>}
+                        {forecastState && <ForecastList forecast={forecastState}/>}
+                    </>
+                }
             </div>
         </div>
     );
