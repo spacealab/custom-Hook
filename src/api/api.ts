@@ -1,20 +1,21 @@
+import {ForecastProps} from "@/types/api/FetcherProps";
 import {ForecastResponse} from "@/types/api/ForecastResponse"
-import {WeatherResponse} from "@/types/api/WeatherResponse"
-
+import {WeatherProps} from "@/types/api/FetcherProps";
+import {WeatherResponse} from "@/types/api/WeatherResponse";
 const baseUrl = "https://api.openweathermap.org/data/2.5/";
 const apikey = "3dce9b1c66837262a25b3f448d354a76";
 
-interface WeatherProps {
-    city: string,
-}
+// interface WeatherProps {
+//     city: string,
+// }
 
-interface ForecastProps {
-    lon: number,
-    lat: number,
-}
+// interface ForecastProps {
+//     lon: number,
+//     lat: number,
+// }
 
 
-export async function callWeatherApi({city} : WeatherProps) :Promise<WeatherResponse | false> {
+export async function callWeatherApi({city} :WeatherProps) :Promise<WeatherResponse | false> {
     await sleep(2000)
     const response = await fetch( baseUrl + `weather?q=${city}&appid=${apikey}&units=metric`)
     if(response.ok) {
@@ -25,7 +26,7 @@ export async function callWeatherApi({city} : WeatherProps) :Promise<WeatherResp
 }
 
 
-export async function callForecastApi({lat, lon}:ForecastProps) :Promise<ForecastResponse | false> {
+export async function callForecastApi({lat, lon} :ForecastProps) :Promise<ForecastResponse | false> {
     await sleep(5000)
     const response = await fetch( baseUrl + `onecall?lat=${lat}&lon=${lon}&appid=${apikey}&units=metric`)
     if(response.ok) {

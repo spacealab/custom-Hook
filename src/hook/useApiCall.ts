@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 
 import ApiStatus from "@/types/api/ApiStatus"
-import { ForecastResponse } from "@/types/api/ForecastResponse";
-import { callForecastApi } from "@/api/api";
 
-interface ForecastProps {
-    lat: number,
-    lon: number,
+interface Props<T,S> {
+    func: (arg: T) => Promise<S | false>;
+    params: T;
+    refresh?: Array<any>;
+    enabled?: boolean;
 }
 
-export default function useForecastApi({lat, lon}: ForecastProps) {
-    const [response, setResponse] = useState<ForecastResponse | false>(false);
+export default function useApiCall<S, T> ({func, params, refresh = [], enabled = true}: Props<T,S>) {
+
+
+    const [response, setResponse] = useState<S| false>(false);
 
     const [status, setStatus] = useState<ApiStatus>("pending")
 
     const apiCall = async () => {
         setStatus("isLoading");
-        const result = await callForecastApi({lat, lon});   
-        setResponse(result);     
+        const result = await func(params);  
+
         if(result === false) {
             setStatus("hasError");
             return;
@@ -27,9 +29,9 @@ export default function useForecastApi({lat, lon}: ForecastProps) {
     }
 
     useEffect (() => {
-        if(lat !==0 && lon !== 0)
+        if (enabled)
             apiCall();
-    },[lat, lon])
+    },refresh)
 
     return {status, response}
 }
