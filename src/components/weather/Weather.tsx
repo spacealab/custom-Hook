@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import ApiLoader from "../share/ApiLoader/ApiLoader";
 import ForecastList from "./ForecastList";
 import {ForecastResponse} from "@/types/api/ForecastResponse"
 import Image from "next/image";
@@ -62,21 +63,13 @@ function Weather({city}: Props) {
             <Image src={"next.svg"} alt={"logo"} width={86} height={44}/>
             <div className="bg-white shadow mt-4 rounded-2xl p-8 py-16 h-[500px] w-[750px]">
                 <SearchForm city={cityState} setCityState={setCityState} />
-                {
-                    status === "isLoading" ? <p>is loading please wait</p> : 
-                    status === "hasError" ? <p>there is an error with api</p> :
-                    <>
-                        {weatherState.city && <WeatherInfo weather={weatherState}/>}
-                        {
-                            ForecastStatus === "isLoading" ? <p>is loading please wait</p> :
-                            ForecastStatus === "hasError" ? <p>there is an error with api</p> :
-                            
-                                
-                                forecastState && <ForecastList forecast={forecastState}/>
-                        
-                        }
-                    </>
-                }
+
+                <ApiLoader status={status}>
+                    {weatherState.city && <WeatherInfo weather={weatherState}/>}
+                    <ApiLoader status={ForecastStatus}>
+                    {forecastState && <ForecastList forecast={forecastState}/>}
+                    </ApiLoader>
+                </ApiLoader>
             </div>
         </div>
     );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import ApiStatus from "@/types/api/ApiStatus"
 import { ForecastResponse } from "@/types/api/ForecastResponse";
 import { callForecastApi } from "@/api/api";
 
@@ -11,7 +12,7 @@ interface ForecastProps {
 export default function useForecastApi({lat, lon}: ForecastProps) {
     const [response, setResponse] = useState<ForecastResponse | false>(false);
 
-    const [status, setStatus] = useState<"pending"| "isLoading" |"hasError" | "isSuccess">("pending")
+    const [status, setStatus] = useState<ApiStatus>("pending")
 
     const apiCall = async () => {
         setStatus("isLoading");
