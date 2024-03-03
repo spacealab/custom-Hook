@@ -25,10 +25,14 @@ export async function callWeatherApi({city} : WeatherProps) :Promise<WeatherResp
 }
 
 
-export async function callForecastApi({lat, lon}:ForecastProps) :Promise<ForecastResponse> {
-    const response = await fetch( baseUrl + `onecall?lat=${lat}&lon=${lon}&appid=${apikey}&units=metric`)
+export async function callForecastApi({lat, lon}:ForecastProps) :Promise<ForecastResponse | false> {
     await sleep(5000)
-    return await response.json();
+    const response = await fetch( baseUrl + `onecall?lat=${lat}&lon=${lon}&appid=${apikey}&units=metric`)
+    if(response.ok) {
+        return await response.json();
+    } else {
+        return false
+    }
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))

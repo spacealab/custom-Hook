@@ -1,4 +1,3 @@
-import {callForecastApi, callWeatherApi} from "@/api/api"
 import { useEffect, useState } from "react";
 
 import ForecastList from "./ForecastList";
@@ -6,6 +5,7 @@ import {ForecastResponse} from "@/types/api/ForecastResponse"
 import Image from "next/image";
 import SearchForm from "./SearchForm";
 import WeatherInfo from "./WeatherInfo";
+import useForecastApi from "@/hook/useForecastApi"
 import useWeatherApi from "@/hook/useWeatherApi"
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 
 function Weather({city}: Props) {
     const [cityState, setCityState] = useState(city);
-
+    const [coord, setCoord] = useState({lat:0, lon:0})
     const [weatherState, setWeatherState] = useState<weather>({
         city: "",
         wind: 0,
@@ -27,10 +27,12 @@ function Weather({city}: Props) {
     const [forecastState, setForecastState] = useState<ForecastResponse | null>(null);
     const {status,  response} = useWeatherApi({city: cityState})
 
+    const {status: ForecastStatus, response: ForecastResponse} = useForecastApi(coord);
+
     useEffect(() => {
         getWeatherData();
     }, [cityState, response])
- 
+
     const getWeatherData = async () => {
 
         if (response) {
@@ -43,12 +45,17 @@ function Weather({city}: Props) {
                 daily: []
             }
             setWeatherState(weather);
-    
-            const forecastResponse =  await callForecastApi({lat: response.coord.lat, lon: response.coord.lon})
-            setForecastState(forecastResponse);
-        }
+            setCoord(response.coord);
 
+            // setForecastState(forecastResponse);
+        }
     }
+
+    useEffect(() => {
+        if(ForecastResponse) {
+            setForecastState(ForecastResponse);
+        }
+    },[ForecastResponse])
 
     return (
         <div className="flex flex-col items-center mt-[200px]">
@@ -60,7 +67,14 @@ function Weather({city}: Props) {
                     status === "hasError" ? <p>there is an error with api</p> :
                     <>
                         {weatherState.city && <WeatherInfo weather={weatherState}/>}
-                        {forecastState && <ForecastList forecast={forecastState}/>}
+                        {
+                            ForecastStatus === "isLoading" ? <p>is loading please wait</p> :
+                            ForecastStatus === "hasError" ? <p>there is an error with api</p> :
+                            
+                                
+                                forecastState && <ForecastList forecast={forecastState}/>
+                        
+                        }
                     </>
                 }
             </div>
