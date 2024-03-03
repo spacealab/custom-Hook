@@ -14,49 +14,33 @@ interface Props {
 }
 
 function Weather({city}: Props) {
+    
     const [cityState, setCityState] = useState(city);
     const [coord, setCoord] = useState({lat:0, lon:0})
-    const [weatherState, setWeatherState] = useState<weather>({
-        city: "",
-        wind: 0,
-        humidity: 0,
-        description: "",
-        icon: "",
-        daily: []
-    });
-
-    const [forecastState, setForecastState] = useState<ForecastResponse | null>(null);
     const {status,  response} = useWeatherApi({city: cityState})
 
     const {status: ForecastStatus, response: ForecastResponse} = useForecastApi(coord);
 
     useEffect(() => {
-        getWeatherData();
-    }, [cityState, response])
-
-    const getWeatherData = async () => {
-
         if (response) {
-            const weather: weather = {
-                city: response.name,
-                wind:response.wind.speed,
-                humidity: response.main.humidity,
-                description: response.weather[0].description,
-                icon: response.weather[0].icon,
-                daily: []
-            }
-            setWeatherState(weather);
             setCoord(response.coord);
 
-            // setForecastState(forecastResponse);
+        }
+    }, [response])
+
+    let weather: null | weather= null;
+
+    if(response) {
+        weather = {
+            city: response.name,
+            wind:response.wind.speed,
+            humidity: response.main.humidity,
+            description: response.weather[0].description, 
+            icon: response.weather[0].icon,
+            daily: []
         }
     }
 
-    useEffect(() => {
-        if(ForecastResponse) {
-            setForecastState(ForecastResponse);
-        }
-    },[ForecastResponse])
 
     return (
         <div className="flex flex-col items-center mt-[200px]">
@@ -65,9 +49,9 @@ function Weather({city}: Props) {
                 <SearchForm city={cityState} setCityState={setCityState} />
 
                 <ApiLoader status={status}>
-                    {weatherState.city && <WeatherInfo weather={weatherState}/>}
+                    {weather && weather.city && <WeatherInfo weather={weather}/>}
                     <ApiLoader status={ForecastStatus}>
-                    {forecastState && <ForecastList forecast={forecastState}/>}
+                    {ForecastResponse && <ForecastList forecast={ForecastResponse}/>}
                     </ApiLoader>
                 </ApiLoader>
             </div>
